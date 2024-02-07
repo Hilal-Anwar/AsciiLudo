@@ -3,6 +3,7 @@ package org.ui.core;
 import org.ui.util.*;
 
 import java.util.Locale;
+import java.util.TreeMap;
 
 
 public class Main {
@@ -12,6 +13,12 @@ public class Main {
     Dice dice = new Dice();
     private int[][] dice_reset = {{6, 6}, {6, 7}, {6, 8},
             {7, 6}, {7, 7}, {7, 8}, {8, 6}, {8, 7}, {8, 8}};
+    private Point[] red_init_position = new Point[]{};
+    private Point[] green_init_position = new Point[]{};
+    private Point[] blue_init_position = new Point[]{};
+    private Point[] yellow_init_position = new Point[]{};
+    private TreeMap<TokensType,Point[]> token_tree=new TreeMap<>();
+
     private final LudoBoard ludoBoard = new LudoBoard(new Cursor(3, 6, Colors.PURPLE));
 
 
@@ -81,6 +88,18 @@ public class Main {
                 true, tokensType.getColors(), new Token(id + "3", tokensType));
         ludoBoxs[y + 2][x + 2] = new LudoBox(
                 true, tokensType.getColors(), new Token(id + "4", tokensType));
+        final Point[] points = {new Point(x, y),
+                new Point(x, y + 2), new Point(x + 2, y), new Point(x + 2, y + 2)};
+        final Point[] point = {new Point(x, y),
+                new Point(x, y + 2), new Point(x + 2, y), new Point(x + 2, y + 2)};
+        switch (tokensType) {
+            case RED -> red_init_position = points;
+            case BLUE -> blue_init_position = points;
+            case GREEN -> green_init_position = points;
+            case YELLOW -> yellow_init_position = points;
+        }
+        token_tree.put(tokensType,point);
+
     }
 
     public static void main(String[] args) {
@@ -95,7 +114,7 @@ public class Main {
     public void start() throws InterruptedException {
         var display = new Display();
         KeyBoardInput keyBoardInput = new KeyBoardInput(display);
-        display.clear_display();   
+        display.clear_display();
         ludoBoard.draw("", 0, 0);
         int i = 0;
         while (true) {
