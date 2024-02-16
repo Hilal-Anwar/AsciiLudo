@@ -2,21 +2,15 @@ package org.ui.core;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Dice {
 
-    private static int roll_dice() {
-        return (int) (Math.random() * 6 + 1);
-    }
 
-    public ArrayList<int[]> getDiceValue() {
-        int vale = roll_dice();
+    public static DiceValue getDiceValue() {
+        int vale = (int) (Math.random() * 6 + 1);
         ArrayList<int[]> dice = new ArrayList<>();
         switch (vale) {
-            case 1 -> {
-                dice.add(new int[]{7, 7});
-            }
+            case 1 -> dice.add(new int[]{7, 7});
             case 2 -> {
                 dice.add(new int[]{6, 6});
                 dice.add(new int[]{8, 8});
@@ -51,7 +45,10 @@ public class Dice {
             }
 
         }
-        return dice;
+        return new DiceValue(vale, dice);
+    }
+
+    public record DiceValue(int value, ArrayList<int[]> dice) {
     }
 
 }

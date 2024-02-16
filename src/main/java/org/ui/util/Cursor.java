@@ -13,6 +13,14 @@ public class Cursor {
         this.colors = colors;
     }
 
+    public void setColumn(int column) {
+        this.column = column;
+    }
+
+    public void setRow(int row) {
+        this.row = row;
+    }
+
     public void move_cursor_up() {
         row = fix_row(row - 1);
     }
@@ -38,14 +46,24 @@ public class Cursor {
     }
 
     public int getColumn() {
-        return column;
+        return this.column;
+    }
+
+    @Override
+    public String toString() {
+        return "Cursor{" +
+                "column=" + column +
+                ", row=" + row +
+                ", colors=" + colors +
+                '}';
     }
 
     public int getRow() {
-        return row;
+        return this.row;
     }
 
     public Colors getColors() {
         return colors;
     }
+
 }

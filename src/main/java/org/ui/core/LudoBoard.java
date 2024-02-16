@@ -23,7 +23,7 @@ public class LudoBoard extends Cursor {
         int row = 15, column = 15;
         var home = new Box(size * 6, size * 6, size * 3);
         var player_box = new Box[]{new Box(size, size, size * 5), new Box(size, size * 9, size * 5),
-                new Box(size * 9, size, size * 5), /*new Box(size * 6, size * 6, size * 3),*/ new Box(size * 9, size * 9, size * 5)};
+                new Box(size * 9, size, size * 5), new Box(size * 9, size * 9, size * 5)};
         var non = new Box[]{new Box(size * 2, size * 2, size), new Box(size * 4, size * 2, size),
                 new Box(size * 2, size * 4, size), new Box(size * 4, size * 4, size),
                 new Box(size * 2, size * 10, size), new Box(size * 4, size * 10, size),
@@ -37,7 +37,8 @@ public class LudoBoard extends Cursor {
             for (int j = 0; j < column * size + 1; j++) {
                 int u = 0;
                 for (var p : player_box) {
-                    if (((j > p.x() && j < (p.x() + p.c())) && (i > p.y() && i < (p.y() + p.c()))) && isNon(i, j, non)) {
+                    if (((j > p.x() && j < (p.x() + p.c())) &&
+                            (i > p.y() && i < (p.y() + p.c()))) && isNon(i, j, non)) {
                         u = 1;
                         break;
                     }
@@ -55,7 +56,7 @@ public class LudoBoard extends Cursor {
             }
             grid.append('\n');
         }
-        System.out.println(grid);
+        System.out.println(grid.append(message));
     }
 
     private boolean nonsense(int i, int j) {
