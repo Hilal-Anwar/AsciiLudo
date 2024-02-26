@@ -49,8 +49,10 @@ public class LudoBoard extends Cursor {
                         grid.append("  ");
                     else
                         grid.append(getText(i, j, "██"));
-                } else if (i % (size / 2) == 0 && j % (size / 2) == 0 && ludoBoxes[i / size][j / size].getTokens() != null)
-                    grid.append(getText(i, j, ludoBoxes[i / size][j / size].getTokens()[0].tokensType().getColorText()));
+                } else if (i % (size / 2) == 0 && j % (size / 2) == 0 &&
+                        ludoBoxes[i / size][j / size].getTokens() != null)
+                    grid.append(getText(i, j, ludoBoxes[i / size][j / size].getTokens().getFirst().
+                            tokensType().getColorText()));
                 else
                     grid.append("  ");
             }

@@ -7,7 +7,8 @@ public enum TokensType {
     RED("██", Colors.RED),
     BLUE("██", Colors.BLUE),
     GREEN("██", Colors.GREEN),
-    YELLOW("██", Colors.YELLOW);
+    YELLOW("██", Colors.YELLOW),
+    NONE("  ",Colors.WHITE);
     private final String colorText;
     private final Colors colors;
 

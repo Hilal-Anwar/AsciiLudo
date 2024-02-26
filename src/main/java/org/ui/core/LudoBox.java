@@ -3,26 +3,33 @@ package org.ui.core;
 import org.ui.util.Colors;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 
 public class LudoBox {
-    private Token tokens[];
+    private LinkedList<Token> tokens;
     private boolean selected;
     private Colors colors = Colors.WHITE;
-    private boolean isFilled=false;
+    private boolean isFilled = false;
 
-    public LudoBox(boolean selected, Colors colors,Token ...tokens) {
+    public LudoBox(boolean selected, Colors colors, LinkedList<Token> tokens) {
         this.tokens = tokens;
         this.selected = selected;
         this.colors = colors;
     }
-    public boolean isFilled(){
-        return isFilled;
-    }
-    public void setFilled(boolean condition){
-        isFilled=condition;
+
+    public void setToken(LinkedList<Token> tokens) {
+        this.tokens = tokens;
     }
 
-    public Token[] getTokens() {
+    public boolean isFilled() {
+        return isFilled;
+    }
+
+    public void setFilled(boolean condition) {
+        isFilled = condition;
+    }
+
+    public LinkedList<Token> getTokens() {
         return tokens;
     }
 
@@ -38,7 +45,7 @@ public class LudoBox {
     @Override
     public String toString() {
         return "LudoBox{" +
-                "tokens=" + Arrays.toString(tokens) +
+                "tokens=" + tokens +
                 ", selected=" + selected +
                 ", colors=" + colors +
                 ", isFilled=" + isFilled +
