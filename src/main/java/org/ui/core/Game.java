@@ -24,24 +24,21 @@ public class Game {
     private final LinkedList<Point> special_blue =
             new LinkedList<>(List.of(new Point(8, 12), new Point(6, 13), new Point(7, 13), new Point(7, 12),
                     new Point(7, 11), new Point(7, 10), new Point(7, 9)));
-    private final TreeMap<TokensType, Point> init_points = new TreeMap<>(Map.of(
+    private final TreeMap<TokensType, Point> start_points = new TreeMap<>(Map.of(
             TokensType.RED, new Point(1, 6)
             , TokensType.GREEN, new Point(8, 1),
             TokensType.YELLOW, new Point(13, 8),
             TokensType.BLUE, new Point(6, 13)));
-    /*private Point init_red_point = new Point(1, 6);
-    private Point init_green_point = new Point(8, 1);
-    private Point init_yellow_point = new Point(13, 8);
-    private Point init_blue_point = new Point(6, 13);*/
+
 
     private final int[][] dice_reset = {
             {6, 6}, {6, 7}, {6, 8},
             {7, 6}, {7, 7}, {7, 8},
             {8, 6}, {8, 7}, {8, 8}};
-    private LinkedList<Point> red_init_position;
-    private LinkedList<Point> green_init_position;
-    private LinkedList<Point> blue_init_position;
-    private LinkedList<Point> yellow_init_position;
+    private TreeMap<String, Point> red_init_position;
+    private TreeMap<String, Point> green_init_position;
+    private TreeMap<String, Point> blue_init_position;
+    private TreeMap<String, Point> yellow_init_position;
     private final TreeMap<TokensType, Point[]> token_tree = new TreeMap<>();
     private final LudoBoard ludoBoard = new LudoBoard(new Cursor(7, 7, Colors.CYAN));
     private final LinkedList<Point> path = new LinkedList<>(
@@ -91,8 +88,8 @@ public class Game {
 
     private void markSpecialPoint(LinkedList<Point> points, Colors colors) {
         for (var p : points) {
-            ludoBoxs[p.y()][p.x()] = new LudoBox(true, colors, new LinkedList<>(List.of(new Token("",
-                    TokensType.NONE))));
+            ludoBoxs[p.y()][p.x()] = new LudoBox(true, colors,
+                    new LinkedList<>(List.of(new Token("", TokensType.NONE))));
         }
     }
 
@@ -130,20 +127,23 @@ public class Game {
         ludoBoxs[y][x] = new LudoBox(true, tokensType.getColors(),
                 new LinkedList<>(List.of(new Token(id + "1", tokensType))));
         ludoBoxs[y + 2][x] = new LudoBox(true, tokensType.getColors(),
-                new LinkedList<>(List.of(new Token(id + "1", tokensType))));
+                new LinkedList<>(List.of(new Token(id + "2", tokensType))));
         ludoBoxs[y][x + 2] = new LudoBox(true, tokensType.getColors(),
                 new LinkedList<>(List.of(new Token(id + "3", tokensType))));
         ludoBoxs[y + 2][x + 2] = new LudoBox(true, tokensType.getColors(),
                 new LinkedList<>(List.of(new Token(id + "4", tokensType))));
-        final Point[] points = {new Point(x, y), new Point(x, y + 2),
-                new Point(x + 2, y), new Point(x + 2, y + 2)};
+        final TreeMap<String, Point> points = new TreeMap<>(Map.of(
+                id + "1", new Point(x, y),
+                id + "2", new Point(x, y + 2),
+                id + "3", new Point(x + 2, y),
+                id + "4", new Point(x + 2, y + 2)));
         final Point[] point = {new Point(x, y), new Point(x, y + 2),
                 new Point(x + 2, y), new Point(x + 2, y + 2)};
         switch (tokensType) {
-            case RED -> red_init_position = new LinkedList<>(Arrays.asList(points));
-            case BLUE -> blue_init_position = new LinkedList<>(Arrays.asList(points));
-            case GREEN -> green_init_position = new LinkedList<>(Arrays.asList(points));
-            case YELLOW -> yellow_init_position = new LinkedList<>(Arrays.asList(points));
+            case RED -> red_init_position = points;
+            case BLUE -> blue_init_position = points;
+            case GREEN -> green_init_position = points;
+            case YELLOW -> yellow_init_position = points;
         }
         token_tree.put(tokensType, point);
 
@@ -190,7 +190,7 @@ public class Game {
                         status = GameStatus.Selection;
                     } else if (status.equals(GameStatus.Selection) && isAnyBoxSelected && turn != null) {
                         if (isAmongInitialPosition(turn, cur[itr])) {
-                            move_the_token(turn, cur[itr], init_points.get(turn));
+                            move_the_token(turn, cur[itr], start_points.get(turn));
                             status = GameStatus.Rolling;
                         } else {
                             var ipt = cur[itr];
@@ -219,7 +219,8 @@ public class Game {
 
     private void role_dice(TokensType turn) {
         for (var z : dice_reset) {
-            ludoBoxs[z[0]][z[1]] = new LudoBox(false, Colors.WHITE, new LinkedList<>(List.of(new Token("",
+            ludoBoxs[z[0]][z[1]] = new LudoBox(false,
+                    Colors.WHITE, new LinkedList<>(List.of(new Token("",
                     TokensType.NONE))));
         }
         var m = Dice.getDiceValue();
@@ -232,10 +233,10 @@ public class Game {
 
     private boolean isAmongInitialPosition(TokensType turn, Point point) {
         return switch (turn) {
-            case RED -> red_init_position.contains(point);
-            case YELLOW -> yellow_init_position.contains(point);
-            case GREEN -> green_init_position.contains(point);
-            case BLUE -> blue_init_position.contains(point);
+            case RED -> red_init_position.containsValue(point);
+            case YELLOW -> yellow_init_position.containsValue(point);
+            case GREEN -> green_init_position.containsValue(point);
+            case BLUE -> blue_init_position.containsValue(point);
             case NONE -> false;
         };
     }
@@ -278,11 +279,40 @@ public class Game {
             initPoint.pop();
             initPoint.add(new Token("", TokensType.NONE));
         } else {
-            fpPoint.pop();
+            for (int j = 0; j < fpPoint.size(); j++) {
+
+                if (fpPoint.get(j).tokensType() != turn) {
+                    var token = fpPoint.get(j);
+                    var tyr = switch (token.tokensType()) {
+                        case RED, NONE -> red_init_position;
+                        case GREEN -> green_init_position;
+                        case BLUE -> blue_init_position;
+                        case YELLOW -> yellow_init_position;
+                    };
+                    System.out.println(token.tokenId());
+                    Point index = tyr.get(token.tokenId());
+                    System.out.println("I am index     "+index+"\n");
+                    if (index != null){
+                        System.out.println("Token :   "+fpPoint.get(j));
+                        ludoBoxs[index.y()][index.x()].getTokens().addFirst(fpPoint.get(j));
+                        var type=fpPoint.get(j).tokensType();
+                        var list = token_tree.get(type);
+                        for (int i = 0; i < list.length; i++) {
+                            if (list[i] == fp) {
+                                list[i] = index;
+                                break;
+                            }
+                        }
+                    }
+                    fpPoint.remove(j);
+                }
+            }
+            //fpPoint.pop();
             int i;
-            for (i = 0; i < initPoint.size(); i++)
+            for (i = 0; i < initPoint.size(); i++) {
                 if (initPoint.get(i).tokensType() == turn)
                     break;
+            }
             fpPoint.add(initPoint.get(i));
             initPoint.remove(i);
             initPoint.add(new Token("", TokensType.NONE));

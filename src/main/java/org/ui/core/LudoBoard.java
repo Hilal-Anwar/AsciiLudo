@@ -1,6 +1,5 @@
 package org.ui.core;
 
-import org.ui.util.Colors;
 import org.ui.util.Cursor;
 import org.ui.util.Text;
 
@@ -19,7 +18,6 @@ public class LudoBoard extends Cursor {
 
     public void draw(String message, int width, int height) {
         StringBuilder grid = new StringBuilder();
-        String color_text = Text.getColorText("██", Colors.YELLOW);
         int row = 15, column = 15;
         var home = new Box(size * 6, size * 6, size * 3);
         var player_box = new Box[]{new Box(size, size, size * 5), new Box(size, size * 9, size * 5),
