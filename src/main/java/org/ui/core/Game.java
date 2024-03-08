@@ -6,11 +6,16 @@ import java.util.*;
 
 
 public class Game {
-    private final int column = 15;
-    private final int row = 15;
+
     private final LudoBox[][] ludoBoxs;
     private GameStatus status;
     private int diceValue;
+    private final TreeMap<TokensType, Boolean> isAtLeastOneOut = new TreeMap<>(
+            Map.of(TokensType.RED, false,
+                    TokensType.BLUE, false,
+                    TokensType.GREEN, false,
+                    TokensType.YELLOW, false)
+    );
     private boolean isAnyBoxSelected = false;
     private final LinkedList<Point> special_red = new LinkedList<>(List.of(new Point(2, 8)
             , new Point(1, 6), new Point(1, 7), new Point(2, 7),
@@ -22,7 +27,8 @@ public class Game {
             new LinkedList<>(List.of(new Point(6, 2), new Point(8, 1), new Point(7, 1),
                     new Point(7, 2), new Point(7, 3), new Point(7, 4), new Point(7, 5)));
     private final LinkedList<Point> special_blue =
-            new LinkedList<>(List.of(new Point(8, 12), new Point(6, 13), new Point(7, 13), new Point(7, 12),
+            new LinkedList<>(List.of(new Point(8, 12), new Point(6, 13), new Point(7, 13),
+                    new Point(7, 12),
                     new Point(7, 11), new Point(7, 10), new Point(7, 9)));
     private final TreeMap<TokensType, Point> start_points = new TreeMap<>(Map.of(
             TokensType.RED, new Point(1, 6)
@@ -43,18 +49,30 @@ public class Game {
     private final LudoBoard ludoBoard = new LudoBoard(new Cursor(7, 7, Colors.CYAN));
     private final LinkedList<Point> path = new LinkedList<>(
             List.of(new Point(0, 6), new Point(1, 6),
-                    new Point(2, 6), new Point(3, 6), new Point(4, 6), new Point(5, 6),
-                    new Point(6, 5), new Point(6, 4), new Point(6, 3), new Point(6, 2),
-                    new Point(6, 1), new Point(6, 0), new Point(7, 0), new Point(8, 0),
-                    new Point(8, 1), new Point(8, 2), new Point(8, 3), new Point(8, 4),
-                    new Point(8, 5), new Point(9, 6), new Point(10, 6), new Point(11, 6),
-                    new Point(12, 6), new Point(13, 6), new Point(14, 6), new Point(14, 7),
-                    new Point(14, 8), new Point(13, 8), new Point(12, 8), new Point(11, 8),
-                    new Point(10, 8), new Point(9, 8), new Point(8, 9), new Point(8, 10),
-                    new Point(8, 11), new Point(8, 12), new Point(8, 13), new Point(8, 14),
-                    new Point(7, 14), new Point(6, 14), new Point(6, 13), new Point(6, 12),
-                    new Point(6, 11), new Point(6, 10), new Point(6, 9), new Point(5, 8),
-                    new Point(4, 8), new Point(3, 8), new Point(2, 8), new Point(1, 8),
+                    new Point(2, 6), new Point(3, 6),
+                    new Point(4, 6), new Point(5, 6),
+                    new Point(6, 5), new Point(6, 4),
+                    new Point(6, 3), new Point(6, 2),
+                    new Point(6, 1), new Point(6, 0),
+                    new Point(7, 0), new Point(8, 0),
+                    new Point(8, 1), new Point(8, 2),
+                    new Point(8, 3), new Point(8, 4),
+                    new Point(8, 5), new Point(9, 6),
+                    new Point(10, 6), new Point(11, 6),
+                    new Point(12, 6), new Point(13, 6),
+                    new Point(14, 6), new Point(14, 7),
+                    new Point(14, 8), new Point(13, 8),
+                    new Point(12, 8), new Point(11, 8),
+                    new Point(10, 8), new Point(9, 8),
+                    new Point(8, 9), new Point(8, 10),
+                    new Point(8, 11), new Point(8, 12),
+                    new Point(8, 13), new Point(8, 14),
+                    new Point(7, 14), new Point(6, 14),
+                    new Point(6, 13), new Point(6, 12),
+                    new Point(6, 11), new Point(6, 10),
+                    new Point(6, 9), new Point(5, 8),
+                    new Point(4, 8), new Point(3, 8),
+                    new Point(2, 8), new Point(1, 8),
                     new Point(0, 8), new Point(0, 7)
             ));
 
@@ -78,7 +96,6 @@ public class Game {
                             new LinkedList<>(List.of(new Token("", TokensType.NONE))));
             }
         }
-
         init();
         markSpecialPoint(special_green, Colors.GREEN);
         markSpecialPoint(special_red, Colors.RED);
@@ -163,7 +180,8 @@ public class Game {
         var display = new Display();
         KeyBoardInput keyBoardInput = new KeyBoardInput(display);
         display.clear_display();
-        ludoBoard.draw("Press enter to role the dice", 0, 0);
+        ludoBoard.draw("Press enter to role the dice",
+                0, 0);
         int i = 0;
         int itr = 0;
         Point[] cur = new Point[]{new Point(7, 7)};
@@ -183,33 +201,37 @@ public class Game {
                     if (status.equals(GameStatus.Rolling)) {
                         turn = TokensType.values()[i];
                         cur = token_tree.get(turn);
-                        System.out.println(Arrays.toString(cur));
                         itr = 0;
-                        role_dice(turn);
-                        i = i == TokensType.values().length - 2 ? 0 : i + 1;
-                        status = GameStatus.Selection;
-                    } else if (status.equals(GameStatus.Selection) && isAnyBoxSelected && turn != null) {
-                        if (isAmongInitialPosition(turn, cur[itr])) {
-                            move_the_token(turn, cur[itr], start_points.get(turn));
+                        message = role_dice(turn);
+                        if (isAtLeastOneOut.get(turn) || diceValue >= 6) {
+                            status = GameStatus.Selection;
+                        }
+                        if (diceValue < 6)
+                            i = i == TokensType.values().length - 2 ? 0 : i + 1;
+                    } else if (status.equals(GameStatus.Selection) &&
+                            isAnyBoxSelected && turn != null) {
+                        if (isAmongInitialPosition(turn, cur[itr]) && diceValue >= 6) {
+                            move_the_token(turn, cur[itr],
+                                    start_points.get(turn));
+                            diceValue=diceValue-6;
                             status = GameStatus.Rolling;
-                        } else {
+                        } else if (diceValue >= 0) {
                             var ipt = cur[itr];
                             if (path.contains(ipt)) {
                                 int index = path.indexOf(ipt);
                                 Point pnt = path.get(run(index));
                                 move_the_token(turn, ipt, pnt);
+                                status = GameStatus.Rolling;
+                                isAnyBoxSelected = false;
+                                diceValue = 0;
                             }
-                            status = GameStatus.Rolling;
-                            //move_the_token();
                         }
-                        isAnyBoxSelected = false;
-
                     }
                 }
                 case ESC -> System.exit(-1);
             }
             if (!key.equals(Key.NONE)) {
-                System.out.print("\u001b[H");
+                display.clear_display();
                 ludoBoard.draw(message, 0, 0);
             }
             keyBoardInput.setKeyBoardKey(Key.NONE);
@@ -217,18 +239,34 @@ public class Game {
         }
     }
 
-    private void role_dice(TokensType turn) {
+    private String role_dice(TokensType turn) {
         for (var z : dice_reset) {
             ludoBoxs[z[0]][z[1]] = new LudoBox(false,
-                    Colors.WHITE, new LinkedList<>(List.of(new Token("",
-                    TokensType.NONE))));
+                    Colors.WHITE, new LinkedList<>(List.of(
+                    new Token("",
+                            TokensType.NONE))));
         }
         var m = Dice.getDiceValue();
         for (var z : m.dice()) {
-            ludoBoxs[z[0]][z[1]] = new LudoBox(false, Colors.WHITE, new LinkedList<>(List.of(
+            ludoBoxs[z[0]][z[1]] = new LudoBox(false,
+                    Colors.WHITE, new LinkedList<>(List.of(
                     new Token("dice", turn))));
         }
-        diceValue = m.value();
+        diceValue = diceValue >= 6 ? diceValue + m.value() : m.value();
+        //diceValue = m.value();
+
+        return nonsense(turn);
+
+    }
+
+    private String nonsense(TokensType turn) {
+        if (!isAtLeastOneOut.get(turn) && diceValue < 6) {
+            return "You must get atleast one 6 to get the token out";
+        } else if (diceValue == 6) {
+            isAtLeastOneOut.replace(turn, true);
+            return "You got 6 you can roll the dice once more.";
+        }
+        return "Move the token";
     }
 
     private boolean isAmongInitialPosition(TokensType turn, Point point) {
@@ -241,40 +279,14 @@ public class Game {
         };
     }
 
-    private String move(TokensType turn) {
-        String message = "";
-        switch (turn) {
-            case RED -> {
-                if (diceValue != 6 && red_init_position.size() == 4) {
-                    return "You should get at least 6 to start the game";
-                } else {
-
-                }
-            }
-            case GREEN -> {
-
-            }
-            case YELLOW -> {
-
-            }
-            case BLUE -> {
-
-            }
-        }
-        for (var key : token_tree.keySet()) {
-            for (var v : token_tree.get(key)) {
-                ludoBoxs[v.y()][v.x()] = new LudoBox(false, Colors.WHITE, new LinkedList<>(List.of(
-                        new Token("", key))));
-            }
-        }
-        return "";
-    }
-
     private void move_the_token(TokensType turn, Point ip, Point fp) {
         var initPoint = ludoBoxs[ip.y()][ip.x()].getTokens();
         var fpPoint = ludoBoxs[fp.y()][fp.x()].getTokens();
-        if (isAmongSpecialPoint(fp) || (!fpPoint.isEmpty() && isAmongSpecialPoint(ip) &&
-                initPoint.getFirst().tokensType() == fpPoint.getFirst().tokensType())) {
+        if (isAmongSpecialPoint(fp) || (!fpPoint.isEmpty() &&
+                isAmongSpecialPoint(ip) &&
+                initPoint.getFirst().tokensType() == fpPoint.
+                        getFirst().tokensType())) {
+            initPoint.getFirst().tokensType().moveToken(1);
             fpPoint.push(initPoint.getFirst());
             initPoint.pop();
             initPoint.add(new Token("", TokensType.NONE));
@@ -283,19 +295,18 @@ public class Game {
 
                 if (fpPoint.get(j).tokensType() != turn) {
                     var token = fpPoint.get(j);
+
                     var tyr = switch (token.tokensType()) {
                         case RED, NONE -> red_init_position;
                         case GREEN -> green_init_position;
                         case BLUE -> blue_init_position;
                         case YELLOW -> yellow_init_position;
                     };
-                    System.out.println(token.tokenId());
                     Point index = tyr.get(token.tokenId());
-                    System.out.println("I am index     "+index+"\n");
-                    if (index != null){
-                        System.out.println("Token :   "+fpPoint.get(j));
+                    if (index != null) {
                         ludoBoxs[index.y()][index.x()].getTokens().addFirst(fpPoint.get(j));
-                        var type=fpPoint.get(j).tokensType();
+                        fpPoint.get(j).tokensType().resetPosition();
+                        var type = fpPoint.get(j).tokensType();
                         var list = token_tree.get(type);
                         for (int i = 0; i < list.length; i++) {
                             if (list[i] == fp) {
@@ -314,6 +325,7 @@ public class Game {
                     break;
             }
             fpPoint.add(initPoint.get(i));
+            initPoint.get(i).tokensType().moveToken(diceValue);
             initPoint.remove(i);
             initPoint.add(new Token("", TokensType.NONE));
         }
@@ -324,7 +336,7 @@ public class Game {
                 break;
             }
         }
-        System.out.println(initPoint);
+        //System.out.println(initPoint);
     }
 
     private ArrayList<Point> createPath() {
