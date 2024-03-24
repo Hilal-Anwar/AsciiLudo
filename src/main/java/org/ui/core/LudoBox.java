@@ -20,6 +20,13 @@ public class LudoBox {
     public void setToken(LinkedList<Token> tokens) {
         this.tokens = tokens;
     }
+    public Token getToken(TokensType turn){
+        for(var vr:getTokens()){
+            if (vr.tokensType().equals(turn))
+                return vr;
+        }
+        return null;
+    }
 
     public boolean isFilled() {
         return isFilled;
