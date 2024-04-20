@@ -7,7 +7,7 @@ import org.jline.utils.InfoCmp;
 import java.io.IOException;
 
 public class Display {
-    Terminal terminal;
+    public Terminal terminal;
     public Display(){
         try {
             terminal = TerminalBuilder.terminal();

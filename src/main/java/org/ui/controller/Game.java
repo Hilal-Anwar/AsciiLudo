@@ -1,11 +1,15 @@
-package org.ui.core;
+package org.ui.controller;
 
+
+import org.ui.core.*;
 import org.ui.util.*;
 
 import java.util.*;
 
+import static org.ui.util.Colors.*;
 
-public class Game {
+
+public class Game extends Display{
 
     private final LudoBox[][] ludoBoxs;
     private GameStatus status;
@@ -50,7 +54,7 @@ public class Game {
     private TreeMap<String, Point> blue_init_position;
     private TreeMap<String, Point> yellow_init_position;
     private final TreeMap<TokensType, Point[]> token_tree = new TreeMap<>();
-    private final LudoBoard ludoBoard = new LudoBoard(new Cursor(7, 7, Colors.CYAN));
+    private final LudoBoard ludoBoard = new LudoBoard(new Cursor(7, 7, CYAN));
     private final LinkedList<Point> path = new LinkedList<>(
             List.of(new Point(0, 6), new Point(1, 6),
                     new Point(2, 6), new Point(3, 6),
@@ -80,31 +84,31 @@ public class Game {
                     new Point(0, 8), new Point(0, 7)
             ));
 
-    Game() {
+    public Game() {
         ludoBoxs = ludoBoard.getLudoBoxes();
         status = GameStatus.Rolling;
         for (int i = 0; i < 15; i++) {
             for (int j = 0; j < 15; j++) {
                 if (i % 14 == 0 || j % 14 == 0) {
                     var c = getColorAsPerLocation(i, j);
-                    if (!c.equals(Colors.WHITE)) {
+                    if (c!= WHITE) {
                         LudoBox xu = new LudoBox(true, c,
                                 new LinkedList<>(List.of(new Token("", TokensType.NONE))));
                         xu.setFilled(true);
                         ludoBoxs[i][j] = xu;
                     } else
-                        ludoBoxs[i][j] = new LudoBox(false, Colors.WHITE,
+                        ludoBoxs[i][j] = new LudoBox(false, WHITE,
                                 new LinkedList<>(List.of(new Token("", TokensType.NONE))));
                 } else
-                    ludoBoxs[i][j] = new LudoBox(false, Colors.WHITE,
+                    ludoBoxs[i][j] = new LudoBox(false, WHITE,
                             new LinkedList<>(List.of(new Token("", TokensType.NONE))));
             }
         }
         init();
-        markSpecialPoint(special_green, Colors.GREEN);
-        markSpecialPoint(special_red, Colors.RED);
-        markSpecialPoint(special_blue, Colors.BLUE);
-        markSpecialPoint(special_yellow, Colors.YELLOW);
+        markSpecialPoint(special_green, GREEN);
+        markSpecialPoint(special_red, RED);
+        markSpecialPoint(special_blue, BLUE);
+        markSpecialPoint(special_yellow, YELLOW);
     }
 
     private void markSpecialPoint(LinkedList<Point> points, Colors colors) {
@@ -117,14 +121,14 @@ public class Game {
 
     private Colors getColorAsPerLocation(int i, int j) {
         if (i <= 5 && j <= 5)
-            return Colors.RED;
+            return RED;
         else if (i <= 5 && j >= 9)
-            return Colors.GREEN;
+            return GREEN;
         else if (i >= 9 && j <= 5)
-            return Colors.BLUE;
+            return BLUE;
         else if (i >= 9 && j >= 9)
-            return Colors.YELLOW;
-        return Colors.WHITE;
+            return YELLOW;
+        return WHITE;
     }
 
     private void init() {
@@ -175,22 +179,12 @@ public class Game {
 
     }
 
-    public static void main(String[] args) {
-        Game in = new Game();
-        try {
-            in.start();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public void start() throws InterruptedException {
         TokensType turn = null;
-        var display = new Display();
-        KeyBoardInput keyBoardInput = new KeyBoardInput(display);
-        display.clear_display();
+        KeyBoardInput keyBoardInput = new KeyBoardInput(this);
+        this.clear_display();
         ludoBoard.draw("Press enter to role the dice",
-                0, 0);
+                terminal.getWidth(), terminal.getHeight());
         int i = 0;
         int itr = 0;
         Point[] cur = new Point[]{new Point(7, 7)};
@@ -274,13 +268,13 @@ public class Game {
                         }
                     }
 
-                    message = message + "\n" + list_token;
+                    //message = message + "\n" + list_token;
                 }
                 case ESC -> System.exit(-1);
             }
             if (!key.equals(Key.NONE)) {
-                display.clear_display();
-                ludoBoard.draw(message, 0, 0);
+                this.clear_display();
+                ludoBoard.draw(message,  terminal.getWidth(), terminal.getHeight());
             }
             keyBoardInput.setKeyBoardKey(Key.NONE);
             Thread.sleep(10);
@@ -290,14 +284,14 @@ public class Game {
     private String role_dice(TokensType turn) {
         for (var z : dice_reset) {
             ludoBoxs[z[0]][z[1]] = new LudoBox(false,
-                    Colors.WHITE, new LinkedList<>(List.of(
+                    WHITE, new LinkedList<>(List.of(
                     new Token("",
                             TokensType.NONE))));
         }
         var m = Dice.getDiceValue();
         for (var z : m.dice()) {
             ludoBoxs[z[0]][z[1]] = new LudoBox(false,
-                    Colors.WHITE, new LinkedList<>(List.of(
+                    WHITE, new LinkedList<>(List.of(
                     new Token("dice", turn))));
         }
         diceValue = diceValue >= 6 ? diceValue + m.value() : m.value();
@@ -344,10 +338,10 @@ public class Game {
                     var token = fpPoint.get(j);
 
                     var tyr = switch (token.tokensType()) {
-                        case RED, NONE -> red_init_position;
-                        case GREEN -> green_init_position;
-                        case BLUE -> blue_init_position;
-                        case YELLOW -> yellow_init_position;
+                        case TokensType.RED, TokensType.NONE -> red_init_position;
+                        case TokensType.GREEN -> green_init_position;
+                        case TokensType.BLUE -> blue_init_position;
+                        case TokensType.YELLOW -> yellow_init_position;
                     };
                     Point index = tyr.get(token.tokenId());
                     if (index != null) {

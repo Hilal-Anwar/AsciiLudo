@@ -1,5 +1,6 @@
-package org.ui.core;
+package org.ui.controller;
 
+import org.ui.core.Box;
 import org.ui.util.Cursor;
 import org.ui.util.Text;
 
@@ -41,8 +42,7 @@ public class LudoBoard extends Cursor {
                         break;
                     }
                 }
-                if (u == 0 && (j % size == 0 || i % size == 0) || ludoBoxes[i / size][j / size].isFilled())
-                 {
+                if (u == 0 && (j % size == 0 || i % size == 0) || ludoBoxes[i / size][j / size].isFilled()) {
                     if (((j > home.x() && j < (home.x() + home.c())) && (i > home.y() && i < (home.y() + home.c()))))
                         grid.append("  ");
                     else
@@ -56,7 +56,10 @@ public class LudoBoard extends Cursor {
             }
             grid.append('\n');
         }
-        System.out.println(grid.append(message));
+        int col = width / 2 - (column * size + 50) / 2;
+        int he = height / 2 - (row * size + 1) / 2;
+        System.out.println(("\n".repeat(he) + grid.append(message)).indent(col));
+        // System.out.println(grid.append(message).toString().indent());
     }
 
     private boolean nonsense(int i, int j) {

@@ -40,7 +40,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>org.ui.core.Game</mainClass>
+                            <mainClass>org.ui.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -52,7 +52,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>org.ui.core.Game</mainClass>
+                            <mainClass>org.ui.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

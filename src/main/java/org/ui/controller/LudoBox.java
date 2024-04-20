@@ -1,8 +1,9 @@
-package org.ui.core;
+package org.ui.controller;
 
+import org.ui.core.Token;
+import org.ui.core.TokensType;
 import org.ui.util.Colors;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 
 public class LudoBox {
