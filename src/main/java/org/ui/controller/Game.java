@@ -14,7 +14,7 @@ public class Game extends Display{
     private final LudoBox[][] ludoBoxs;
     private GameStatus status;
     private int diceValue;
-    private TreeMap<TokensType, List<Token>> list_token = new TreeMap<>();
+    private final ThreadLocal<TreeMap<TokensType, List<Token>>> list_token = ThreadLocal.withInitial(TreeMap::new);
     TreeMap<TokensType, Point> endPathDirection = new TreeMap<>(Map.of(TokensType.BLUE, new Point(0, -1),
             TokensType.RED, new Point(1, 0), TokensType.GREEN, new Point(0, 1),
             TokensType.YELLOW, new Point(-1, 0)));
@@ -153,7 +153,7 @@ public class Game extends Display{
         var t2 = new Token(id + "2", tokensType);
         var t3 = new Token(id + "3", tokensType);
         var t4 = new Token(id + "4", tokensType);
-        list_token.put(tokensType, List.of(t1, t2, t3, t4));
+        list_token.get().put(tokensType, List.of(t1, t2, t3, t4));
         ludoBoxs[y][x] = new LudoBox(true, tokensType.getColors(),
                 new LinkedList<>(List.of(t1)));
         ludoBoxs[y + 2][x] = new LudoBox(true, tokensType.getColors(),
